@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">diego_movies</string>
+    <string name="sort_selection">Sort By:</string>
+    <string-array name="parameters">
+        <item>Popularity</item>
+        <item>Average Rate</item>
+    </string-array>
+</resources>

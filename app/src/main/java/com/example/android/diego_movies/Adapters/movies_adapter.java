@@ -1,4 +1,4 @@
-package com.example.android.diego_movies;
+package com.example.android.diego_movies.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
@@ -13,6 +13,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.android.diego_movies.R;
+import com.example.android.diego_movies.movies;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -29,7 +31,7 @@ public class movies_adapter extends ArrayAdapter<movies> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         movies movie = getItem(position);
-        Log.d("THIS ARE MY MOVIES", movie.getMainTitle());
+        //Log.d("THIS ARE MY MOVIES", movie.getMainTitle());
         if (convertView==null){
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.movie_items,parent,false);
 
@@ -38,8 +40,9 @@ public class movies_adapter extends ArrayAdapter<movies> {
         //Setting the image to the imageview
         ImageView movieImage = (ImageView)convertView.findViewById(R.id.movie_image);
 
+        assert movie != null;
         Picasso.with(getContext())
-                .load(movie.getImage())
+                .load(movie.getPosterImage())
                 .into(movieImage);
 
         //Setting the title to the textview

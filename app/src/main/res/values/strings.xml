@@ -1,8 +1,14 @@
 <resources>
     <string name="app_name">diego_movies</string>
     <string name="sort_selection">Sort By:</string>
+    <string name="default_text">This Element cannot be charged =(</string>
     <string-array name="parameters">
         <item>Popularity</item>
         <item>Average Rate</item>
+        <item>Favorites</item>
     </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_reviews">ReviewsActivity</string>
 </resources>

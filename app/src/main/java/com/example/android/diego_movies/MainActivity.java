@@ -1,39 +1,38 @@
 package com.example.android.diego_movies;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import com.example.android.diego_movies.Adapters.movies_adapter;
+import com.example.android.diego_movies.movies_database.AppDatabase;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String SORT_DESCENDANT ="&sort_by=popularity.desc";
     private movies_adapter mAdapter;
     private GridView mainGrid;
     private Spinner sp1;
+    private AppDatabase favDatabase;
+    private FragmentSpinner fSpinner;
+    public static final String FRAGMENT_SPINNER_TAG = "fSpinner";
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if(savedInstanceState == null){
+            fSpinner = new FragmentSpinner();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container,fSpinner,FRAGMENT_SPINNER_TAG)
+                    .commit();
+        }else {
+            fSpinner = (FragmentSpinner)getSupportFragmentManager().findFragmentByTag(FRAGMENT_SPINNER_TAG);
+        }
 
         //Handling the spinner onselectitem listener.Start whit the movies sorted by popularity
         sp1 = (Spinner) findViewById(R.id.sort_spinner);
@@ -43,46 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-//Here I create a class and a method to convert the request to a String and print it in a textView
-//My code was based on https://github.com/codepath/android_guides/wiki/Using-OkHttp
-public class handle_request {
-        public OkHttpClient myClient = new OkHttpClient();
-
-        public void responseToString(String url)throws IOException {
-            Request myRequest = new Request.Builder()
-                    .url(url)
-                    .build();
-            myClient.newCall(myRequest).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    e.printStackTrace();
-                }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    final String myResponse = response.body().string();
-                    if(!response.isSuccessful()) {
-                        throw new IOException();
-                    }
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                //Instantiate the adapter
-                                ArrayList<movies> testJson = jsonParser.movieParser(myResponse);
-                                //for (int a=0;a<testJson.size();a++){
-                                //Log.d("THIS IS A MOVIE", a+String.valueOf(testJson.get(a).getImage()));
-                                //}
-                                mAdapter = new movies_adapter(MainActivity.this,testJson);
-                                mainGrid = findViewById(R.id.main_gridview);
-                                mainGrid.setAdapter(mAdapter);
-                            }
-                        });
-
-                }
-            });
-        }
-    }
-    //HERE WE ARE GOING TO HANDLE HOW WE SORT THE MOVIES DEPENDING ON THE ITEM SELECTED.
+    //Settings the selection options to the Spinner
     public class spinnerAction  {
         public Spinner spinner;
         public spinnerAction(Spinner spinner){
@@ -93,31 +53,29 @@ public class handle_request {
             spinner.setOnItemSelectedListener(new SpinnerListener());
         }
 
-        public class SpinnerListener implements AdapterView.OnItemSelectedListener{
-            //Definir que se hace al seleccionar el item
+        public class SpinnerListener  implements AdapterView.OnItemSelectedListener{
+
+
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String item = adapterView.getItemAtPosition(i).toString();
+                // We Basically change the Url when we select an item of the spinner.
+                // From POPULAR_MOVIES to TOP_RATED.
                 switch (i) {
                     case 0:
-                        URL popularityUrl = url_build.create_url(url_build.POPULAR_MOVIES);
-                        String popularityString = popularityUrl.toString();
-                        handle_request popularityRequest = new handle_request();
-                        try {
-                            popularityRequest.responseToString(popularityString);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        fSpinner.setPopularity();
+
                         break;
                     case 1:
-                        URL topRatedUrl = url_build.create_url(url_build.TOP_RATED);
-                        String topRatedString = topRatedUrl.toString();
-                        handle_request topRatedRequest = new handle_request();
-                        try {
-                            topRatedRequest.responseToString(topRatedString);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+
+                        fSpinner.setTopRated();
+
+                        break;
+
+                    case 2:
+
+                        fSpinner.setFavorites();
+                        break;
                 }
 
             }
@@ -130,6 +88,7 @@ public class handle_request {
 
 
     }
+
 
 }
 

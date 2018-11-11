@@ -15,6 +15,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.diego_movies.Adapters.movies_adapter;
 
@@ -30,14 +32,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link FragmentSpinner.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link FragmentSpinner#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class FragmentSpinner extends Fragment {
 
     private movies_adapter mAdapter;
@@ -67,7 +62,7 @@ public class FragmentSpinner extends Fragment {
         return fragmentView;
     }
 
-    //Here we make the connection betwwn main activity and the fragmentSpinner
+    //Here we make the connection betwen main activity and the fragmentSpinner
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

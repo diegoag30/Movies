@@ -1,11 +1,16 @@
 package com.example.android.diego_movies;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.example.android.diego_movies.Adapters.movies_adapter;
 import com.example.android.diego_movies.movies_database.AppDatabase;
@@ -88,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
 
 }
 

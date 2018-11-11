@@ -1,7 +1,9 @@
 package com.example.android.diego_movies;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -85,6 +87,8 @@ public class MoviesInfo extends AppCompatActivity {
         movieId = myMovie.getMovieId();
         favoriteButton = (MaterialFavoriteButton) findViewById(R.id.favorite_button);
 
+        //Reading the button state
+        readSpreferences();
 
         // Getting the Trailer of the movie.
         String movieIdUrl = urlBuild.getVideoUrl(myMovie.getMovieId());
@@ -94,16 +98,21 @@ public class MoviesInfo extends AppCompatActivity {
             e.printStackTrace();
         }
 
+
+
         // Setting the on clik listener to the favorite button.
         favoriteButton.setOnFavoriteChangeListener(new MaterialFavoriteButton.OnFavoriteChangeListener() {
             @Override
             public void onFavoriteChanged(MaterialFavoriteButton buttonView, boolean favorite) {
+                SharedPreferences sharedP = getSharedPreferences("fav_button",Context.MODE_PRIVATE);
+
                 //If Button is clicked, inserts the movie to the database, else the movie will be removed.
                 Context context = getApplicationContext();
                 AppDatabase database = AppDatabase.createInstance(context);
                 Executor favExecutor = AppExecutor.getInstance().mainExecutor();
                 final MoviesDAO moviesDAO = database.getMoviesDAO();
                 if (favorite) {
+                    saveButtonState(sharedP,favorite);
                     String toastText = "Added to Favorites";
                     Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
                     toast.show();
@@ -115,6 +124,7 @@ public class MoviesInfo extends AppCompatActivity {
                     });
 
                 } else {
+                    saveButtonState(sharedP,favorite);
                     String toastText = "Movie removed from favorites";
                     Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
                     toast.show();
@@ -197,24 +207,7 @@ public class MoviesInfo extends AppCompatActivity {
         });
     }
 
-    //Here we save the button state to preserve it if we rotate the device
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        final Boolean bState = favoriteButton.isFavorite();
-        outState.putBoolean(BUTTON_STATE,bState);
-    }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        if(savedInstanceState!= null){
-            if(savedInstanceState.containsKey(BUTTON_STATE)){
-                Boolean savedButtonState = savedInstanceState.getBoolean(BUTTON_STATE);
-                favoriteButton.setFavorite(savedButtonState);
-            }
-        }
-    }
 
     //Implicit Intent to open the movie trailer.
     public void openYoutubeTrailer(String url){
@@ -223,5 +216,19 @@ public class MoviesInfo extends AppCompatActivity {
         if(intent.resolveActivity(getPackageManager())!= null){
             startActivity(intent);
         }
+    }
+
+    //As the name says, Saves the button state, to recuperate this value on the onCreateMethod.
+    public void saveButtonState(SharedPreferences sharedPreferences,
+                                Boolean favbool){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(BUTTON_STATE,favbool);
+        editor.commit();
+    }
+
+    public void readSpreferences(){
+        SharedPreferences sharedP = getSharedPreferences("fav_button",Context.MODE_PRIVATE);
+        Boolean favButtonState = sharedP.getBoolean(BUTTON_STATE,false);
+        favoriteButton.setFavorite(favButtonState);
     }
 }

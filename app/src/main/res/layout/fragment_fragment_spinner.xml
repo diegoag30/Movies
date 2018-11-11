@@ -6,20 +6,21 @@
     android:layout_height="match_parent"
     tools:context=".FragmentSpinner">
 
-    <!-- TODO: Update blank fragment layout -->
 
-    <GridView
-        android:id="@+id/main_gridview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:columnWidth="150dp"
-        android:horizontalSpacing="2dp"
-        android:numColumns="auto_fit"
-        android:verticalSpacing="2dp"
-        android:visibility="visible"
-        tools:context=".MainActivity">
+        <GridView
+            android:id="@+id/main_gridview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:columnWidth="150dp"
+            android:horizontalSpacing="2dp"
+            android:numColumns="auto_fit"
+            android:verticalSpacing="2dp"
+            android:visibility="visible"
+            tools:context=".MainActivity">
 
-    </GridView>
+        </GridView>
+
+
 
 </FrameLayout>

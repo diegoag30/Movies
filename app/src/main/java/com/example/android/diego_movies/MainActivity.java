@@ -3,6 +3,7 @@ package com.example.android.diego_movies;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -60,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
 
         public class SpinnerListener  implements AdapterView.OnItemSelectedListener{
 
-
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String item = adapterView.getItemAtPosition(i).toString();
@@ -69,16 +69,11 @@ public class MainActivity extends AppCompatActivity {
                 switch (i) {
                     case 0:
                         fSpinner.setPopularity();
-
                         break;
                     case 1:
-
                         fSpinner.setTopRated();
-
                         break;
-
                     case 2:
-
                         fSpinner.setFavorites();
                         break;
                 }

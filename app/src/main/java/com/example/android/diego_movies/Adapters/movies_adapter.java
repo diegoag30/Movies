@@ -21,16 +21,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class movies_adapter extends ArrayAdapter<movies> {
+    private  ArrayList<movies>items;
 
     public movies_adapter(Context mContext, ArrayList<movies>lMovies){
         super(mContext,0,lMovies);
+        this.items = lMovies;
     }
 
+    public ArrayList<movies> getItems() {
+        return items;
+    }
+
+    public void setItems(ArrayList<movies> items) {
+        this.items = items;
+    }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        movies movie = getItem(position);
+        movies movie = items.get(position);
         //Log.d("THIS ARE MY MOVIES", movie.getMainTitle());
         if (convertView==null){
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.movie_items,parent,false);
@@ -50,4 +59,5 @@ public class movies_adapter extends ArrayAdapter<movies> {
         mTitle.setText(movie.getMainTitle());
         return convertView;
     }
+
 }

@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -35,9 +37,16 @@ import okhttp3.Response;
 
 public class FragmentSpinner extends Fragment {
 
-    private movies_adapter mAdapter;
+    public movies_adapter mAdapter;
     private GridView mainGrid;
+    public movies_adapter anotherAdapter;
+    public movies_adapter favAdapter;
     FragmentActivity listener;
+    private ArrayList<movies>moviesItems;
+    private ArrayList<movies>moviesItemsTR;
+    private int gridPosition;
+
+
 
 
     public FragmentSpinner() {
@@ -48,9 +57,12 @@ public class FragmentSpinner extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-
+        //When the activity recreates,
+        if(savedInstanceState != null) {
+            moviesItems = savedInstanceState.getParcelableArrayList("myAdapter");
+            gridPosition = savedInstanceState.getInt("myGridPosition");
+            moviesItemsTR = savedInstanceState.getParcelableArrayList("anotherAdapter");
+        }
     }
 
     @Override
@@ -59,6 +71,7 @@ public class FragmentSpinner extends Fragment {
         // Inflate the layout for this fragment
         View fragmentView= inflater.inflate(R.layout.fragment_fragment_spinner, container, false);
         mainGrid = fragmentView.findViewById(R.id.main_gridview);
+
         return fragmentView;
     }
 
@@ -66,6 +79,7 @@ public class FragmentSpinner extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+
         if (context instanceof Activity) {
             this.listener = (FragmentActivity) context;
         } else {
@@ -83,27 +97,102 @@ public class FragmentSpinner extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(mAdapter != null){
+            outState.putParcelableArrayList("myAdapter",mAdapter.getItems());
+        }
+        if (anotherAdapter != null){
+            outState.putParcelableArrayList("anotherAdapter",anotherAdapter.getItems());
+        }
+        gridPosition = mainGrid.getFirstVisiblePosition();
+        outState.putInt("myGridPosition",gridPosition);
+
     }
 
     //Here we create the movies for most popular option
     public void setPopularity(){
         URL popularityUrl = urlBuild.create_url(urlBuild.POPULAR_MOVIES);
         String popularityString = popularityUrl.toString();
-        try {
-            responseToString(popularityString);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(moviesItems== null){
+
+               /* responseToString(popularityString,mAdapter,moviesItems);*/
+                OkHttpClient myClient = new OkHttpClient();
+                Log.d("THIS IS MY URL",popularityString);
+                Request myRequest = new Request.Builder()
+                        .url(popularityString)
+                        .build();
+                myClient.newCall(myRequest).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        final String myResponse = response.body().string();
+                        if(!response.isSuccessful()) {
+                            throw new IOException();
+                        }
+
+                        listener.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                //Instantiate the adapter
+                                moviesItems = jsonParser.movieParser(myResponse);
+                                popularityClickAndAdapter(listener,moviesItems);
+                            }
+                        });
+                    }
+                });
+            }
+         else{
+            popularityReCreate(listener,moviesItems);
         }
+
     }
     //Here we create the movies for top rated movies option
     public void setTopRated(){
         URL topRatedUrl = urlBuild.create_url(urlBuild.TOP_RATED);
         String topRatedString = topRatedUrl.toString();
-        try {
-            responseToString(topRatedString);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(moviesItemsTR== null){
+/*                responseToString(topRatedString,anotherAdapter,moviesItemsTR);*/
+                OkHttpClient myClient = new OkHttpClient();
+                Log.d("THIS IS MY URL",topRatedString);
+                Request myRequest = new Request.Builder()
+                        .url(topRatedString)
+                        .build();
+                myClient.newCall(myRequest).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        final String myResponse = response.body().string();
+                        if(!response.isSuccessful()) {
+                            throw new IOException();
+                        }
+
+                        listener.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                //Instantiate the adapter
+                                moviesItemsTR = jsonParser.movieParser(myResponse);
+                                topRatedClickAndAdapter(listener,moviesItemsTR);
+                            }
+                        });
+                    }
+                });
+        } else {
+            topRatedReCreate(listener,moviesItemsTR);
         }
+
     }
 
     // Here we query the database if the database have favorite movies
@@ -115,46 +204,48 @@ public class FragmentSpinner extends Fragment {
             public void onChanged(@Nullable List<movies> movies) {
                 assert movies != null;
                 final ArrayList<movies> favArrayList = new ArrayList<movies>(movies);
-                setClickAndAdapter(listener,favArrayList);
+                favClickAndAdapter(listener,favArrayList);
             }
         });
     }
 
-        //Method to make a request, create movies objects and set this to an adapter
-        public void responseToString(String url)throws IOException {
-            OkHttpClient myClient = new OkHttpClient();
-            Log.d("THIS IS MY URL",url);
-            Request myRequest = new Request.Builder()
-                    .url(url)
-                    .build();
-            myClient.newCall(myRequest).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    e.printStackTrace();
-                }
+ //Method to create and set the adapter, also creates the intent to conectt with movies_info activity
+    public void setClickAndAdapter(Context activityContext, ArrayList<movies>movieObjects, movies_adapter adapter){
+        mAdapter = new movies_adapter(activityContext,movieObjects);
+        mainGrid.setAdapter(mAdapter);
+        mainGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                movies selectedItem = (movies)adapterView.getItemAtPosition(i);
+                Intent intent = new Intent(getActivity(),MoviesInfo.class);
+                // Variables for Intent.
+                intent.putExtra("movies",selectedItem);
+                startActivity(intent);
+            }
+        });
 
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    final String myResponse = response.body().string();
-                    if(!response.isSuccessful()) {
-                        throw new IOException();
-                    }
+    }
 
-                    listener.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            //Instantiate the adapter
-                            ArrayList<movies> testJson = jsonParser.movieParser(myResponse);
-                            setClickAndAdapter(listener,testJson);
-                        }
-                    });
+    // Sorry for the non automated code, i couldn't pass the global adapters variables as an argument
+    // to retrieve their values in OnsaveInstance.
 
-                }
-            });
-        }
+    // Set the favorites movies to the Gridview
+    public void favClickAndAdapter(Context activityContext, ArrayList<movies>movieObjects){
+        favAdapter = new movies_adapter(activityContext,movieObjects);
+        mainGrid.setAdapter(favAdapter);
+        mainGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                movies selectedItem = (movies)adapterView.getItemAtPosition(i);
+                Intent intent = new Intent(getActivity(),MoviesInfo.class);
+                // Variables for Intent.
+                intent.putExtra("movies",selectedItem);
+                startActivity(intent);
+            }
+        });
+    }
 
- //Method to create and set the adapter, also creates the intent to conect with movies_info activity
-    public void setClickAndAdapter(Context activityContext, ArrayList<movies>movieObjects){
+    public void popularityClickAndAdapter(Context activityContext, ArrayList<movies>movieObjects){
         mAdapter = new movies_adapter(activityContext,movieObjects);
         mainGrid.setAdapter(mAdapter);
         mainGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -168,4 +259,55 @@ public class FragmentSpinner extends Fragment {
             }
         });
     }
+
+    public void topRatedClickAndAdapter(Context activityContext, ArrayList<movies>movieObjects){
+        anotherAdapter = new movies_adapter(activityContext,movieObjects);
+        mainGrid.setAdapter(anotherAdapter);
+        mainGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                movies selectedItem = (movies)adapterView.getItemAtPosition(i);
+                Intent intent = new Intent(getActivity(),MoviesInfo.class);
+                // Variables for Intent.
+                intent.putExtra("movies",selectedItem);
+                startActivity(intent);
+            }
+        });
+    }
+
+    public void popularityReCreate(Context fragmentCtx,ArrayList<movies>moviesArray) {
+        mAdapter = new movies_adapter(fragmentCtx, moviesArray);
+        mainGrid.setAdapter(mAdapter);
+        mainGrid.setSelection(gridPosition);
+        mainGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                movies selectedItem = (movies) adapterView.getItemAtPosition(i);
+                Intent intent = new Intent(getActivity(), MoviesInfo.class);
+                // Variables for Intent.
+                intent.putExtra("movies", selectedItem);
+                startActivity(intent);
+            }
+
+        });
+    }
+
+    public void topRatedReCreate(Context fragmentCtx,ArrayList<movies>moviesArray){
+        anotherAdapter = new movies_adapter(fragmentCtx,moviesArray);
+        mainGrid.setAdapter(anotherAdapter);
+        mainGrid.setSelection(gridPosition);
+        mainGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                movies selectedItem = (movies) adapterView.getItemAtPosition(i);
+                Intent intent = new Intent(getActivity(), MoviesInfo.class);
+                // Variables for Intent.
+                intent.putExtra("movies", selectedItem);
+                startActivity(intent);
+            }
+
+        });
+    }
+
+
 }

@@ -23,6 +23,7 @@ public class movies implements Parcelable {
     private String movieId;
     private String movieTrailer;
 
+
     public movies(String mainTitle, String releaseDate, String posterImage, String averageVotes, String overview,
                   @NonNull String movieId){
             this.mainTitle = mainTitle;
@@ -77,6 +78,7 @@ public class movies implements Parcelable {
         return movieTrailer;
     }
 
+
     // Setter Methods
 
     public void setMainTitle(String mainTitle) {
@@ -106,6 +108,7 @@ public class movies implements Parcelable {
     public void setMovieTrailer(String movieTrailer) {
         this.movieTrailer = movieTrailer;
     }
+
 
     //Parcel Methods
 

@@ -198,15 +198,20 @@ public class FragmentSpinner extends Fragment {
     // Here we query the database if the database have favorite movies
     public void setFavorites(){
         // We instantiate the database, and the executor to make the db query.
-        MainViewModel vModel = ViewModelProviders.of(this).get(MainViewModel.class);
+
+        final MainViewModel vModel = ViewModelProviders.of(this).get(MainViewModel.class);
+
         vModel.getFavoriteList().observe(this, new Observer<List<movies>>() {
             @Override
             public void onChanged(@Nullable List<movies> movies) {
+
                 assert movies != null;
                 final ArrayList<movies> favArrayList = new ArrayList<movies>(movies);
                 favClickAndAdapter(listener,favArrayList);
+
             }
         });
+
     }
 
  //Method to create and set the adapter, also creates the intent to conectt with movies_info activity

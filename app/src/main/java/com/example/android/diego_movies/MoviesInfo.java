@@ -136,6 +136,7 @@ public class MoviesInfo extends AppCompatActivity {
                     });
 
                 }
+
             }
         });
 
@@ -222,13 +223,13 @@ public class MoviesInfo extends AppCompatActivity {
     public void saveButtonState(SharedPreferences sharedPreferences,
                                 Boolean favbool){
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(BUTTON_STATE,favbool);
+        editor.putBoolean(movieId,favbool);
         editor.commit();
     }
 
     public void readSpreferences(){
         SharedPreferences sharedP = getSharedPreferences("fav_button",Context.MODE_PRIVATE);
-        Boolean favButtonState = sharedP.getBoolean(BUTTON_STATE,false);
+        Boolean favButtonState = sharedP.getBoolean(movieId,false);
         favoriteButton.setFavorite(favButtonState);
     }
 }

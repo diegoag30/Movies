@@ -6,7 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".FragmentSpinner">
 
-
+        <TextView
+            android:id="@+id/ask_movies"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="30sp"
+            android:textStyle="bold"/>
         <GridView
             android:id="@+id/main_gridview"
             android:layout_width="match_parent"

@@ -45,6 +45,7 @@ public class MoviesInfo extends AppCompatActivity {
     String movieId;
     MaterialFavoriteButton favoriteButton;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -232,4 +233,5 @@ public class MoviesInfo extends AppCompatActivity {
         Boolean favButtonState = sharedP.getBoolean(movieId,false);
         favoriteButton.setFavorite(favButtonState);
     }
+
 }

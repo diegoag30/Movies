@@ -1,9 +1,5 @@
 package com.example.android.diego_movies;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,19 +7,16 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.example.android.diego_movies.Adapters.movies_adapter;
 import com.example.android.diego_movies.movies_database.AppDatabase;
 
 public class MainActivity extends AppCompatActivity {
 
-    private movies_adapter mAdapter;
-    private GridView mainGrid;
-    private Spinner sp1;
-    private AppDatabase favDatabase;
-    private FragmentSpinner fSpinner;
+    public Spinner sp1;
+    public FragmentSpinner fSpinner;
     public static final String FRAGMENT_SPINNER_TAG = "fSpinner";
+    public String itemSelected;
 
 
 
@@ -63,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String item = adapterView.getItemAtPosition(i).toString();
+                itemSelected = adapterView.getItemAtPosition(i).toString();
                 // We Basically change the Url when we select an item of the spinner.
                 // From POPULAR_MOVIES to TOP_RATED.
                 switch (i) {
@@ -74,10 +67,10 @@ public class MainActivity extends AppCompatActivity {
                         fSpinner.setTopRated();
                         break;
                     case 2:
-                        fSpinner.setFavorites();
-                        break;
-                }
-
+                        fSpinner.createViewModel();
+                         break;
+                }                                              
+                                                               
             }
 
             @Override
@@ -86,8 +79,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-
     }
-
 }
 

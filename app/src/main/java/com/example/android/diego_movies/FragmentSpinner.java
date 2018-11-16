@@ -45,6 +45,9 @@ public class FragmentSpinner extends Fragment {
     private ArrayList<movies>moviesItems;
     private ArrayList<movies>moviesItemsTR;
     private int gridPosition;
+    TextView askMovies;
+    public MainActivity mainAct;
+
 
 
 
@@ -71,6 +74,9 @@ public class FragmentSpinner extends Fragment {
         // Inflate the layout for this fragment
         View fragmentView= inflater.inflate(R.layout.fragment_fragment_spinner, container, false);
         mainGrid = fragmentView.findViewById(R.id.main_gridview);
+        askMovies = fragmentView.findViewById(R.id.ask_movies);
+        mainAct = (MainActivity) getActivity();
+
 
         return fragmentView;
     }
@@ -196,7 +202,7 @@ public class FragmentSpinner extends Fragment {
     }
 
     // Here we query the database if the database have favorite movies
-    public void setFavorites(){
+    public void createViewModel(){
         // We instantiate the database, and the executor to make the db query.
 
         final MainViewModel vModel = ViewModelProviders.of(this).get(MainViewModel.class);
@@ -204,14 +210,18 @@ public class FragmentSpinner extends Fragment {
         vModel.getFavoriteList().observe(this, new Observer<List<movies>>() {
             @Override
             public void onChanged(@Nullable List<movies> movies) {
-
                 assert movies != null;
-                final ArrayList<movies> favArrayList = new ArrayList<movies>(movies);
-                favClickAndAdapter(listener,favArrayList);
-
+                ArrayList<movies> favArrayList = new ArrayList<movies>(movies);
+                if(favArrayList.size()!= 0) {
+                    clearTv();
+                    if (mainAct.itemSelected.equals("Favorites")) {
+                        favClickAndAdapter(listener, favArrayList);
+                    }
+                }else {
+                    setAskTv();
+                }
             }
         });
-
     }
 
  //Method to create and set the adapter, also creates the intent to conectt with movies_info activity
@@ -242,7 +252,7 @@ public class FragmentSpinner extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 movies selectedItem = (movies)adapterView.getItemAtPosition(i);
-                Intent intent = new Intent(getActivity(),MoviesInfo.class);
+                Intent intent = new Intent(listener,MoviesInfo.class);
                 // Variables for Intent.
                 intent.putExtra("movies",selectedItem);
                 startActivity(intent);
@@ -250,6 +260,7 @@ public class FragmentSpinner extends Fragment {
         });
     }
 
+    // This two methods sets the corresponding adapter and pass the intent
     public void popularityClickAndAdapter(Context activityContext, ArrayList<movies>movieObjects){
         mAdapter = new movies_adapter(activityContext,movieObjects);
         mainGrid.setAdapter(mAdapter);
@@ -280,6 +291,7 @@ public class FragmentSpinner extends Fragment {
         });
     }
 
+    // This two methods handle the Gridview when the activity is re created (Rotation)
     public void popularityReCreate(Context fragmentCtx,ArrayList<movies>moviesArray) {
         mAdapter = new movies_adapter(fragmentCtx, moviesArray);
         mainGrid.setAdapter(mAdapter);
@@ -314,5 +326,16 @@ public class FragmentSpinner extends Fragment {
         });
     }
 
+    // Clears the gridview and sets a textview that ask for favorites
+    public void setAskTv(){
+        mainGrid.setAdapter(null);
+        String askText = "There are no movies on favorite, Please add some movies";
+        askMovies.setText(askText);
+    }
+
+    //Clear the textview
+    public void clearTv(){
+        askMovies.setText("");
+    }
 
 }
